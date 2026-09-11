@@ -1,0 +1,1511 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محاكاة خصائص المتجهات التفاعلية - الصف العاشر</title>
+    <!-- Tailwind CSS for elegant design -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- MathJax for nice mathematical rendering -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es6/jax/markup/xhtml/MathML.js"></script>
+    <!-- Google Fonts for Arabic Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+        }
+        .grid-line {
+            stroke: #e2e8f0;
+            stroke-width: 1;
+        }
+        .dark .grid-line {
+            stroke: #334155;
+        }
+        .axis-line {
+            stroke: #64748b;
+            stroke-width: 2;
+        }
+        .dark .axis-line {
+            stroke: #94a3b8;
+        }
+        /* Styling for smooth custom transitions */
+        .tab-btn {
+            transition: all 0.2s ease-in-out;
+        }
+        /* Pulsing success animation */
+        @keyframes pulse-success {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+        }
+        .success-pulse {
+            animation: pulse-success 1.5s infinite;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-300">
+
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-teal-600 to-cyan-700 text-white shadow-lg p-4">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="p-2.5 bg-white/10 rounded-xl">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-xl md:text-2xl font-bold">مُختبر المتجهات التفاعلي</h1>
+                    <p class="text-xs text-teal-100 mt-0.5">محاكاة تعليمية ذكية لمنهج الفيزياء - الصف العاشر</p>
+                </div>
+            </div>
+            
+            <!-- Global Mode Selector -->
+            <div class="flex items-center bg-teal-900/40 p-1.5 rounded-xl border border-teal-500/30">
+                <button id="btn-abstract" onclick="setGlobalMode('abstract')" class="px-4 py-1.5 rounded-lg text-sm font-bold transition-all bg-white text-teal-900 shadow">
+                    📐 النمط المجرّد
+                </button>
+                <button id="btn-realistic" onclick="setGlobalMode('realistic')" class="px-4 py-1.5 rounded-lg text-sm font-bold transition-all text-teal-100 hover:text-white">
+                    ⛵ أمثلة واقعية
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Grid -->
+    <main class="flex-grow max-w-7xl w-full mx-auto p-4 grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Controls Column -->
+        <section class="lg:col-span-4 flex flex-col gap-4">
+            
+            <!-- Abstract Controls Section -->
+            <div id="abstract-panel" class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-md border border-slate-100 dark:border-slate-700">
+                <h2 class="text-lg font-bold mb-4 flex items-center gap-2 border-b border-slate-100 dark:border-slate-700 pb-2 text-teal-600 dark:text-teal-400">
+                    <span>⚙️ خصائص المتجهات</span>
+                </h2>
+                
+                <!-- Properties Navigation tabs -->
+                <div class="grid grid-cols-1 gap-2 mb-5">
+                    <button onclick="setPropertyTab('components')" id="tab-components" class="tab-btn w-full text-right px-4 py-2.5 rounded-xl text-sm font-bold flex items-center justify-between bg-teal-50 text-teal-700 dark:bg-teal-950/40 dark:text-teal-400 border-r-4 border-teal-600">
+                        <span>1. تحليل المتجه (المركبات)</span>
+                        <span class="text-xs bg-teal-200/50 dark:bg-teal-900 px-2 py-0.5 rounded-full">نشط</span>
+                    </button>
+                    <button onclick="setPropertyTab('equality')" id="tab-equality" class="tab-btn w-full text-right px-4 py-2.5 rounded-xl text-sm font-bold flex items-center justify-between hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300">
+                        <span>2. تساوي المتجهين (التحدي)</span>
+                        <span class="text-xs"></span>
+                    </button>
+                    <button onclick="setPropertyTab('negative')" id="tab-negative" class="tab-btn w-full text-right px-4 py-2.5 rounded-xl text-sm font-bold flex items-center justify-between hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300">
+                        <span>3. سالب المتجه (المعكوس)</span>
+                        <span class="text-xs"></span>
+                    </button>
+                    <button onclick="setPropertyTab('scalar')" id="tab-scalar" class="tab-btn w-full text-right px-4 py-2.5 rounded-xl text-sm font-bold flex items-center justify-between hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300">
+                        <span>4. ضرب المتجه في كمية قياسية</span>
+                        <span class="text-xs"></span>
+                    </button>
+                    <button onclick="setPropertyTab('addition')" id="tab-addition" class="tab-btn w-full text-right px-4 py-2.5 rounded-xl text-sm font-bold flex items-center justify-between hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300">
+                        <span>5. محصلة متجهين (الجمع)</span>
+                        <span class="text-xs"></span>
+                    </button>
+                </div>
+
+                <!-- Dynamic Controls based on chosen tab -->
+                <div id="dynamic-controls" class="space-y-4">
+                    <!-- Dynamic content will be injected by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Realistic Examples Section -->
+            <div id="realistic-panel" class="hidden bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-md border border-slate-100 dark:border-slate-700">
+                <h2 class="text-lg font-bold mb-4 flex items-center gap-2 border-b border-slate-100 dark:border-slate-700 pb-2 text-cyan-600 dark:text-cyan-400">
+                    <span>🌍 أمثلة من الواقع</span>
+                </h2>
+                <div class="grid grid-cols-2 gap-2 mb-4">
+                    <button id="btn-real-river" onclick="setRealScenario('river')" class="p-3 rounded-xl border-2 border-cyan-500 bg-cyan-50 dark:bg-cyan-950 text-cyan-800 dark:text-cyan-200 flex flex-col items-center gap-2 text-center">
+                        <span class="text-2xl">⛵</span>
+                        <span class="text-xs font-bold">قارب يعبر نهراً</span>
+                    </button>
+                    <button id="btn-real-crate" onclick="setRealScenario('crate')" class="p-3 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 flex flex-col items-center gap-2 text-center text-slate-600 dark:text-slate-300">
+                        <span class="text-2xl">📦</span>
+                        <span class="text-xs font-bold">جرّ صندوق خشبي</span>
+                    </button>
+                </div>
+                
+                <!-- Realistic Control parameters -->
+                <div id="realistic-controls" class="space-y-4">
+                    <!-- Content injected by JS -->
+                </div>
+            </div>
+
+            <!-- Theoretical Lesson / Summary Widget -->
+            <div class="bg-gradient-to-br from-slate-800 to-slate-950 text-slate-200 p-5 rounded-2xl shadow-lg border border-slate-700">
+                <h3 class="font-bold mb-2 flex items-center gap-2 text-amber-400">
+                    <span>💡 مراجعة سريعة للمفهوم</span>
+                </h3>
+                <div id="concept-explanation" class="text-xs leading-relaxed space-y-2 text-slate-300">
+                    <!-- Injected explanation based on active modes -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Visualization Area & Calculations -->
+        <section class="lg:col-span-8 flex flex-col gap-4">
+            
+            <!-- Interactive Canvas Card -->
+            <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-md border border-slate-100 dark:border-slate-700 flex flex-col flex-grow">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-teal-500 animate-ping"></span>
+                        <h3 class="font-bold text-sm">لوحة المحاكاة التفاعلية</h3>
+                    </div>
+                    <div class="text-xs text-slate-500 dark:text-slate-400 flex flex-wrap items-center gap-3">
+                        <span class="flex items-center gap-1">
+                            <span class="w-3 h-3 bg-emerald-500 rounded-full inline-block"></span> المتجه $A$
+                        </span>
+                        <span id="label-vector-b-legend" class="flex items-center gap-1 hidden">
+                            <span class="w-3 h-3 bg-blue-500 rounded-full inline-block"></span> المتجه $B$
+                        </span>
+                        <span id="label-vector-r-legend" class="flex items-center gap-1 hidden">
+                            <span class="w-3 h-3 bg-rose-500 rounded-full inline-block"></span> المحصلة $R$
+                        </span>
+                    </div>
+                </div>
+
+                <!-- SVG Area -->
+                <div class="relative bg-slate-100 dark:bg-slate-950 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 w-full aspect-video md:aspect-[5/3] lg:h-[450px]" style="touch-action: none;">
+                    
+                    <!-- SVG Canvas -->
+                    <svg id="svg-canvas" class="w-full h-full cursor-crosshair select-none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Definitions for arrow markers -->
+                        <defs>
+                            <marker id="arrow-a" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 1 L 10 5 L 0 9 z" fill="#10b981" />
+                            </marker>
+                            <marker id="arrow-b" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 1 L 10 5 L 0 9 z" fill="#3b82f6" />
+                            </marker>
+                            <marker id="arrow-b-dashed" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 1 L 10 5 L 0 9 z" fill="#3b82f6" fill-opacity="0.6"/>
+                            </marker>
+                            <marker id="arrow-r" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 1 L 10 5 L 0 9 z" fill="#f43f5e" />
+                            </marker>
+                            <marker id="arrow-negative" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 1 L 10 5 L 0 9 z" fill="#a855f7" />
+                            </marker>
+                            <marker id="arrow-cx" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                                <path d="M 0 1 L 10 5 L 0 9 z" fill="#10b981" />
+                            </marker>
+                            <marker id="arrow-cy" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                                <path d="M 0 1 L 10 5 L 0 9 z" fill="#059669" />
+                            </marker>
+                            <!-- Grid pattern -->
+                            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                                <path d="M 40 0 L 0 0 0 40" fill="none" class="grid-line" />
+                            </pattern>
+                            <pattern id="river-water" width="80" height="40" patternUnits="userSpaceOnUse">
+                                <path d="M 0 20 Q 20 10, 40 20 T 80 20" fill="none" stroke="#2563eb" stroke-opacity="0.15" stroke-width="2"/>
+                            </pattern>
+                        </defs>
+
+                        <!-- River background -->
+                        <g id="river-scene" class="hidden">
+                            <rect width="100%" height="100%" fill="#bae6fd" />
+                            <rect width="100%" height="100%" fill="url(#river-water)" />
+                            <!-- River banks -->
+                            <rect x="0" y="0" width="100%" height="50" fill="#eab308" fill-opacity="0.3" />
+                            <rect x="0" y="350" width="100%" height="100" fill="#eab308" fill-opacity="0.3" />
+                            <!-- Forest/Land markers on banks -->
+                            <line x1="0" y1="50" x2="1000" y2="50" stroke="#ca8a04" stroke-width="3" />
+                            <line x1="0" y1="350" x2="1000" y2="350" stroke="#ca8a04" stroke-width="3" />
+                        </g>
+
+                        <!-- Box scene background -->
+                        <g id="crate-scene" class="hidden">
+                            <rect width="100%" height="100%" fill="#fed7aa" fill-opacity="0.2" />
+                        </g>
+
+                        <!-- Standard Coordinate Grid -->
+                        <rect id="grid-rect" width="100%" height="100%" fill="url(#grid)" />
+
+                        <!-- Axis Lines -->
+                        <g id="axis-lines">
+                            <line id="axis-x" x1="0" y1="200" x2="1000" y2="200" class="axis-line" />
+                            <line id="axis-y" x1="250" y1="0" x2="250" y2="1000" class="axis-line" />
+                            
+                            <!-- Arrow Heads for Axes -->
+                            <path d="M 590 200 L 580 195 L 580 205 Z" class="axis-line fill-current" />
+                            <path d="M 250 10 L 245 20 L 255 20 Z" class="axis-line fill-current" />
+                        </g>
+
+                        <!-- Angle Arc (قوس الزاوية) -->
+                        <g id="angle-arc-group">
+                            <!-- SVG Path for Arc -->
+                            <path id="angle-arc" d="" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" stroke-width="2" />
+                            <!-- Angle Text label -->
+                            <text id="angle-text" x="" y="" fill="#d97706" font-size="12" font-weight="bold" text-anchor="middle" dominant-baseline="central">θ</text>
+                        </g>
+
+                        <!-- Custom Scenario Objects (Boat or Crate) -->
+                        <g id="animated-object" class="hidden">
+                            <!-- Crate drawing -->
+                            <g id="crate-graphic" class="hidden">
+                                <rect x="-30" y="-30" width="60" height="60" fill="#d97706" rx="5" stroke="#78350f" stroke-width="3"/>
+                                <line x1="-30" y1="-30" x2="30" y2="30" stroke="#78350f" stroke-width="2"/>
+                                <line x1="-30" y1="30" x2="30" y2="-30" stroke="#78350f" stroke-width="2"/>
+                            </g>
+                            <!-- Boat drawing -->
+                            <g id="boat-graphic" class="hidden">
+                                <path d="M -35 -12 L 20 -12 L 35 0 L 20 12 L -35 12 Z" fill="#ef4444" stroke="#b91c1c" stroke-width="3"/>
+                                <polygon points="-5,-8 -5,8 15,0" fill="#ffffff"/>
+                            </g>
+                        </g>
+
+                        <!-- Vector Components (A_x and A_y) - Tab 1 specific -->
+                        <g id="components-layer" class="hidden">
+                            <!-- X component of A -->
+                            <line id="vector-a-cx" x1="250" y1="200" x2="250" y2="200" stroke="#10b981" stroke-width="3.5" marker-end="url(#arrow-cx)" />
+                            <!-- Y component of A -->
+                            <line id="vector-a-cy" x1="250" y1="200" x2="250" y2="200" stroke="#059669" stroke-width="3.5" marker-end="url(#arrow-cy)" />
+                            
+                            <!-- Dashed alignment lines -->
+                            <line id="align-dash-x" x1="250" y1="200" x2="250" y2="200" stroke="#64748b" stroke-width="1.5" stroke-dasharray="3,3" />
+                            <line id="align-dash-y" x1="250" y1="200" x2="250" y2="200" stroke="#64748b" stroke-width="1.5" stroke-dasharray="3,3" />
+                        </g>
+
+                        <!-- Standard vectors drawn from dynamic coordinates -->
+                        <g id="vectors-layer">
+                            <!-- Negative Vector of A -->
+                            <line id="vector-negative" x1="250" y1="200" x2="250" y2="200" stroke="#a855f7" stroke-width="3" marker-end="url(#arrow-negative)" class="hidden" />
+                            
+                            <!-- Target Vector A for Tab 2 (Equality Challenge) -->
+                            <line id="vector-target" x1="150" y1="120" x2="310" y2="50" stroke="#64748b" stroke-width="3" stroke-dasharray="5,5" marker-end="url(#arrow-b)" class="hidden" />
+                            
+                            <!-- Vector B -->
+                            <line id="vector-b" x1="250" y1="200" x2="250" y2="200" stroke="#3b82f6" stroke-width="4" marker-end="url(#arrow-b)" class="hidden" />
+                            <!-- Tail-to-Tip Visual Helper for Vector B -->
+                            <line id="vector-b-helper" x1="250" y1="200" x2="250" y2="200" stroke="#3b82f6" stroke-width="3" stroke-opacity="0.6" marker-end="url(#arrow-b-dashed)" stroke-dasharray="4,4" class="hidden" />
+                            
+                            <!-- Vector A -->
+                            <line id="vector-a" x1="250" y1="200" x2="410" y2="100" stroke="#10b981" stroke-width="4" marker-end="url(#arrow-a)" />
+                            
+                            <!-- Resultant Vector R -->
+                            <line id="vector-r" x1="250" y1="200" x2="250" y2="200" stroke="#f43f5e" stroke-width="4.5" marker-end="url(#arrow-r)" class="hidden" />
+                        </g>
+
+                        <!-- Draggable Interaction Handles -->
+                        <g id="interactive-handles">
+                            <!-- Handle for Vector A's Tip -->
+                            <circle id="handle-a" cx="410" cy="100" r="11" fill="#10b981" stroke="#ffffff" stroke-width="3" class="shadow cursor-pointer hover:scale-125 transition-transform" />
+                            
+                            <!-- Handle for Vector B's Tip -->
+                            <circle id="handle-b" cx="250" cy="200" r="11" fill="#3b82f6" stroke="#ffffff" stroke-width="3" class="shadow cursor-pointer hover:scale-125 transition-transform hidden" />
+                            
+                            <!-- Handle for Vector B's Base -->
+                            <circle id="handle-b-base" cx="250" cy="200" r="8" fill="#1d4ed8" stroke="#ffffff" stroke-width="2.5" class="shadow cursor-move hover:scale-125 transition-transform hidden" />
+                        </g>
+
+                        <!-- Live values tooltips over coordinates -->
+                        <g id="tooltip-labels" class="text-[10px] md:text-xs font-semibold fill-slate-700 dark:fill-slate-300">
+                            <text id="label-a" x="410" y="85" text-anchor="middle" fill="#047857">A</text>
+                            <text id="label-b" x="250" y="185" text-anchor="middle" fill="#1d4ed8" class="hidden">B</text>
+                            <text id="label-r" x="250" y="185" text-anchor="middle" fill="#be123c" class="hidden">R</text>
+                            <text id="label-negative" x="250" y="185" text-anchor="middle" fill="#7e22ce" class="hidden">-A</text>
+                        </g>
+                    </svg>
+
+                    <!-- Realistic Simulation Instructions overlay -->
+                    <div id="simulation-playback-card" class="absolute bottom-3 right-3 bg-white/95 dark:bg-slate-900/95 p-3 rounded-xl shadow-lg border border-slate-200 dark:border-slate-800 flex items-center gap-3 hidden">
+                        <button id="btn-play-sim" onclick="startRealisticAnimation()" class="bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-1.5 px-4 rounded-lg text-xs flex items-center gap-2 transition-all">
+                            <span>▶️ تشغيل المحاكاة</span>
+                        </button>
+                        <button onclick="resetRealisticSimulation()" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-slate-700 dark:text-slate-200 py-1.5 px-3 rounded-lg text-xs transition-all">
+                            🔄 إعادة الضبط
+                        </button>
+                    </div>
+
+                    <!-- Touch Instructions Helper overlay -->
+                    <div class="absolute top-3 left-3 bg-slate-900/80 text-white text-[10px] md:text-xs px-2.5 py-1 rounded-full pointer-events-none">
+                        💡 اسحب النقطة الملونة لتغيير المتجه
+                    </div>
+                </div>
+
+                <!-- Calculations & Values Box -->
+                <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+                    
+                    <!-- Vector A status -->
+                    <div class="bg-emerald-50 dark:bg-emerald-950/20 p-3.5 rounded-xl border border-emerald-100 dark:border-emerald-900">
+                        <h4 class="font-bold text-xs text-emerald-800 dark:text-emerald-400 mb-2 flex items-center justify-between">
+                            <span>📊 المتجه الأخضر (A)</span>
+                            <span class="text-[10px] bg-emerald-100 dark:bg-emerald-900 px-2 py-0.5 rounded-full">الأساسي</span>
+                        </h4>
+                        <div class="space-y-1.5 text-xs text-slate-600 dark:text-slate-300">
+                            <div class="flex justify-between">
+                                <span>المقدار ($A$):</span>
+                                <span class="font-bold text-slate-900 dark:text-white" id="val-a-mag">0.0 وحدة</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>الزاوية ($\theta$):</span>
+                                <span class="font-bold text-slate-900 dark:text-white" id="val-a-ang">0°</span>
+                            </div>
+                            <div class="flex justify-between border-t border-emerald-200/40 dark:border-emerald-900/40 pt-1 mt-1">
+                                <span>المركبة السينية ($A_x$):</span>
+                                <span class="font-mono font-bold text-emerald-600" id="val-a-ax">0.0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>المركبة الصادية ($A_y$):</span>
+                                <span class="font-mono font-bold text-teal-600" id="val-a-ay">0.0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Vector B status -->
+                    <div id="card-vector-b" class="bg-blue-50 dark:bg-blue-950/20 p-3.5 rounded-xl border border-blue-100 dark:border-blue-900">
+                        <h4 class="font-bold text-xs text-blue-800 dark:text-blue-400 mb-2 flex items-center justify-between">
+                            <span>📊 المتجه الأزرق (B)</span>
+                            <span class="text-[10px] bg-blue-100 dark:bg-blue-900 px-2 py-0.5 rounded-full">إضافي</span>
+                        </h4>
+                        <div class="space-y-1.5 text-xs text-slate-600 dark:text-slate-300">
+                            <div class="flex justify-between">
+                                <span>المقدار ($B$):</span>
+                                <span class="font-bold text-slate-900 dark:text-white" id="val-b-mag">0.0 وحدة</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>الزاوية ($\theta_B$):</span>
+                                <span class="font-bold text-slate-900 dark:text-white" id="val-b-ang">0°</span>
+                            </div>
+                            <div class="flex justify-between border-t border-blue-200/40 dark:border-blue-900/40 pt-1 mt-1">
+                                <span>المركبة السينية ($B_x$):</span>
+                                <span class="font-mono font-bold" id="val-b-bx">0.0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>المركبة الصادية ($B_y$):</span>
+                                <span class="font-mono font-bold" id="val-b-by">0.0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Operations Result card -->
+                    <div id="card-result" class="bg-rose-50 dark:bg-rose-950/20 p-3.5 rounded-xl border border-rose-100 dark:border-rose-900">
+                        <h4 class="font-bold text-xs text-rose-800 dark:text-rose-400 mb-2 flex items-center justify-between">
+                            <span>🧮 العمليات الحسابية والمحصلة</span>
+                            <span class="text-[10px] bg-rose-100 dark:bg-rose-900 px-2 py-0.5 rounded-full text-rose-700 dark:text-rose-300" id="op-title">تحليل</span>
+                        </h4>
+                        <div class="space-y-1.5 text-xs text-slate-600 dark:text-slate-300" id="op-details">
+                            <!-- Injected calculations based on tab -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-100 dark:bg-slate-950 text-slate-500 dark:text-slate-400 text-center py-4 border-t border-slate-200 dark:border-slate-800 text-xs">
+        <p>تم التطوير كأداة تفاعلية متقدمة لدعم المعلمين والطلاب في شرح موضوع المتجهات لفيزياء الصف العاشر.</p>
+    </footer>
+
+    <!-- JavaScript Simulation Logic -->
+    <script>
+        // State management
+        let globalMode = 'abstract'; // 'abstract' or 'realistic'
+        let activeTab = 'components'; // 'components', 'equality', 'negative', 'scalar', 'addition'
+        let realScenario = 'river'; // 'river' or 'crate'
+
+        // Display States for components layer (New Feature)
+        let showComponentX = true;
+        let showComponentY = true;
+
+        // Constants & Scales
+        const originX = 250;
+        const originY = 200;
+        const pixelScale = 8; // 8 pixels equal 1 physical unit
+
+        // Vector State data
+        let vectorA = { x: 15, y: 10 }; // Relative components from origin
+        let vectorB = { x: 10, y: -8, bx: 15, by: 5 }; // vector B (has component vector & tail base coordinates)
+        let scalarK = 1.5; // multiplication scalar
+
+        // Animation states
+        let animProgress = 0;
+        let isAnimating = false;
+        let animFrameId = null;
+
+        // Challenge/Game status
+        let equalitySuccess = false;
+
+        // Elements caching
+        const svgCanvas = document.getElementById('svg-canvas');
+        const handleA = document.getElementById('handle-a');
+        const handleB = document.getElementById('handle-b');
+        const handleBBase = document.getElementById('handle-b-base');
+        const vectorALine = document.getElementById('vector-a');
+        const vectorBLine = document.getElementById('vector-b');
+        const vectorBHelper = document.getElementById('vector-b-helper');
+        const vectorRLine = document.getElementById('vector-r');
+        const vectorNegLine = document.getElementById('vector-negative');
+        const vectorTargetLine = document.getElementById('vector-target');
+
+        // Setup interaction dragging variables
+        let activeDragElement = null;
+        let dragOffset = { x: 0, y: 0 };
+
+        // DOM Loaded Init
+        window.onload = function() {
+            initInteraction();
+            setGlobalMode('abstract'); // Initialize components screen
+        };
+
+        // Initialize drag and touch event listeners
+        function initInteraction() {
+            // Pointer Down Events for Mouse & Touch
+            handleA.addEventListener('pointerdown', (e) => startDrag(e, 'handle-a'));
+            handleB.addEventListener('pointerdown', (e) => startDrag(e, 'handle-b'));
+            handleBBase.addEventListener('pointerdown', (e) => startDrag(e, 'handle-b-base'));
+
+            window.addEventListener('pointermove', onDrag);
+            window.addEventListener('pointerup', endDrag);
+        }
+
+        function startDrag(e, elementId) {
+            e.preventDefault();
+            activeDragElement = elementId;
+            activeDragElement.touchId = e.pointerId;
+            svgCanvas.setPointerCapture(e.pointerId);
+
+            const rect = svgCanvas.getBoundingClientRect();
+            const clientX = e.clientX;
+            const clientY = e.clientY;
+            const x = clientX - rect.left;
+            const y = clientY - rect.top;
+
+            // Extra distance metrics if we need precise click-offset on target handles
+            if (elementId === 'handle-b-base') {
+                const basePxX = originX + (vectorB.bx * pixelScale);
+                const basePxY = originY - (vectorB.by * pixelScale);
+                dragOffset.x = x - basePxX;
+                dragOffset.y = y - basePxY;
+            }
+        }
+
+        function onDrag(e) {
+            if (!activeDragElement) return;
+
+            const rect = svgCanvas.getBoundingClientRect();
+            const clientX = e.clientX;
+            const clientY = e.clientY;
+            
+            // Boundary constraints inside container
+            let x = clientX - rect.left;
+            let y = clientY - rect.top;
+            
+            // Constrain coordinates to fit reasonably on grid boundaries
+            x = Math.max(10, Math.min(rect.width - 10, x));
+            y = Math.max(10, Math.min(rect.height - 10, y));
+
+            if (activeDragElement === 'handle-a') {
+                // Vector A is anchored at origin
+                vectorA.x = Math.round((x - originX) / pixelScale);
+                vectorA.y = Math.round((originY - y) / pixelScale);
+            } 
+            else if (activeDragElement === 'handle-b') {
+                if (activeTab === 'equality') {
+                    // In equality tab, B can be placed anywhere, let's track relative to its custom base
+                    const basePxX = originX + (vectorB.bx * pixelScale);
+                    const basePxY = originY - (vectorB.by * pixelScale);
+                    vectorB.x = Math.round((x - basePxX) / pixelScale);
+                    vectorB.y = Math.round((basePxY - y) / pixelScale);
+                } else {
+                    // For addition or realism, vector B is also anchored at origin or moves simply
+                    vectorB.x = Math.round((x - originX) / pixelScale);
+                    vectorB.y = Math.round((originY - y) / pixelScale);
+                }
+            } 
+            else if (activeDragElement === 'handle-b-base') {
+                // Move Vector B's starting base position
+                const localX = x - dragOffset.x;
+                const localY = y - dragOffset.y;
+                vectorB.bx = Math.round((localX - originX) / pixelScale);
+                vectorB.y_original = vectorB.by;
+                vectorB.by = Math.round((originY - localY) / pixelScale);
+            }
+
+            updateSimulation();
+        }
+
+        function endDrag(e) {
+            if (!activeDragElement) return;
+            svgCanvas.releasePointerCapture(e.pointerId);
+            activeDragElement = null;
+        }
+
+        // Global Mode switching between Mathematical Abstract or Real Life applications
+        function setGlobalMode(mode) {
+            globalMode = mode;
+            isAnimating = false;
+            if (animFrameId) cancelAnimationFrame(animFrameId);
+
+            const btnAbstract = document.getElementById('btn-abstract');
+            const btnRealistic = document.getElementById('btn-realistic');
+            const abstractPanel = document.getElementById('abstract-panel');
+            const realisticPanel = document.getElementById('realistic-panel');
+            const riverScene = document.getElementById('river-scene');
+            const crateScene = document.getElementById('crate-scene');
+            const gridRect = document.getElementById('grid-rect');
+            const axisLines = document.getElementById('axis-lines');
+
+            if (mode === 'abstract') {
+                // Set buttons states
+                btnAbstract.className = "px-4 py-1.5 rounded-lg text-sm font-bold transition-all bg-white text-teal-900 shadow";
+                btnRealistic.className = "px-4 py-1.5 rounded-lg text-sm font-bold transition-all text-teal-100 hover:text-white";
+                
+                // Show Panels
+                abstractPanel.classList.remove('hidden');
+                realisticPanel.classList.add('hidden');
+
+                // Visual background reset to standard grid
+                gridRect.classList.remove('hidden');
+                axisLines.classList.remove('hidden');
+                riverScene.classList.add('hidden');
+                crateScene.classList.add('hidden');
+                document.getElementById('animated-object').classList.add('hidden');
+
+                setPropertyTab(activeTab); // Reload the current tab variables
+            } else {
+                // Set buttons states
+                btnRealistic.className = "px-4 py-1.5 rounded-lg text-sm font-bold transition-all bg-white text-cyan-900 shadow";
+                btnAbstract.className = "px-4 py-1.5 rounded-lg text-sm font-bold transition-all text-cyan-100 hover:text-white";
+                
+                // Show Panels
+                realisticPanel.classList.remove('hidden');
+                abstractPanel.classList.add('hidden');
+
+                // Visual background swap based on scenario
+                gridRect.classList.add('hidden');
+                axisLines.classList.add('hidden');
+                setRealScenario(realScenario);
+            }
+        }
+
+        // Handle realistic scenarios tabs
+        function setRealScenario(scenario) {
+            realScenario = scenario;
+            resetRealisticSimulation();
+
+            const btnRiver = document.getElementById('btn-real-river');
+            const btnCrate = document.getElementById('btn-real-crate');
+            const riverScene = document.getElementById('river-scene');
+            const crateScene = document.getElementById('crate-scene');
+
+            if (scenario === 'river') {
+                btnRiver.className = "p-3 rounded-xl border-2 border-cyan-500 bg-cyan-50 dark:bg-cyan-950 text-cyan-800 dark:text-cyan-200 flex flex-col items-center gap-2 text-center";
+                btnCrate.className = "p-3 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 flex flex-col items-center gap-2 text-center text-slate-600 dark:text-slate-300";
+                
+                riverScene.classList.remove('hidden');
+                crateScene.classList.add('hidden');
+
+                // River Setup: 
+                // Vector A: Speed and direction of Boat (directed straight upstream/across)
+                // Vector B: Flow of river (points directly along x axis)
+                vectorA = { x: 5, y: 15 };
+                vectorB = { x: 18, y: 0, bx: 0, by: 0 }; 
+            } else {
+                btnCrate.className = "p-3 rounded-xl border-2 border-orange-500 bg-orange-50 dark:bg-orange-950 text-orange-800 dark:text-orange-200 flex flex-col items-center gap-2 text-center";
+                btnRiver.className = "p-3 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 flex flex-col items-center gap-2 text-center text-slate-600 dark:text-slate-300";
+
+                crateScene.classList.remove('hidden');
+                riverScene.classList.add('hidden');
+
+                // Pulling Crate Setup:
+                // Vector A: Force 1 pulling diagonally up
+                // Vector B: Force 2 pulling diagonally down
+                vectorA = { x: 15, y: 12 };
+                vectorB = { x: 18, y: -8, bx: 0, by: 0 };
+            }
+
+            renderRealisticPanelControls();
+            updateSimulation();
+        }
+
+        // Navigation Tabs in Mathematical panel
+        function setPropertyTab(tab) {
+            activeTab = tab;
+            equalitySuccess = false;
+
+            // Update Tab button designs
+            const tabs = ['components', 'equality', 'negative', 'scalar', 'addition'];
+            tabs.forEach(t => {
+                const btn = document.getElementById('tab-' + t);
+                if (t === tab) {
+                    btn.className = "tab-btn w-full text-right px-4 py-2.5 rounded-xl text-sm font-bold flex items-center justify-between bg-teal-50 text-teal-700 dark:bg-teal-950/40 dark:text-teal-400 border-r-4 border-teal-600";
+                    btn.querySelector('span:last-child').innerText = "نشط";
+                    btn.querySelector('span:last-child').className = "text-xs bg-teal-200/50 dark:bg-teal-900 px-2 py-0.5 rounded-full";
+                } else {
+                    btn.className = "tab-btn w-full text-right px-4 py-2.5 rounded-xl text-sm font-bold flex items-center justify-between hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300";
+                    btn.querySelector('span:last-child').innerText = "";
+                    btn.querySelector('span:last-child').className = "text-xs";
+                }
+            });
+
+            // Re-anchor or configure default values based on chosen concept property
+            if (tab === 'components') {
+                vectorA = { x: 18, y: 12 };
+            } 
+            else if (tab === 'equality') {
+                // Setup challenge
+                // Vector A is the user-controlled vector
+                vectorA = { x: 10, y: 15 };
+                // Vector B is target (dashed line)
+                vectorB.bx = -15; // Shifted origin
+                vectorB.by = -5;
+                vectorB.x = 18; // Correct destination components needed for matching
+                vectorB.y = 8;
+            } 
+            else if (tab === 'negative') {
+                vectorA = { x: 15, y: 10 };
+            } 
+            else if (tab === 'scalar') {
+                vectorA = { x: 12, y: 8 };
+                scalarK = 1.5;
+            } 
+            else if (tab === 'addition') {
+                vectorA = { x: 12, y: 12 };
+                vectorB = { x: 14, y: -6, bx: 0, by: 0 }; // Anchored at origin
+            }
+
+            renderAbstractPanelControls();
+            updateSimulation();
+        }
+
+        // Toggles for components (New Feature)
+        function toggleCompX(checked) {
+            showComponentX = checked;
+            updateSimulation();
+        }
+
+        function toggleCompY(checked) {
+            showComponentY = checked;
+            updateSimulation();
+        }
+
+        // Render controls depending on properties selection
+        function renderAbstractPanelControls() {
+            const container = document.getElementById('dynamic-controls');
+            let html = '';
+
+            if (activeTab === 'components') {
+                html = `
+                    <div class="space-y-3 bg-slate-50 dark:bg-slate-900 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
+                        <p class="text-xs text-slate-500 leading-relaxed">
+                            <strong>تحليل المتجه:</strong> هي عملية استبدال متجه واحد بمتجهين متعامدين (أفقي ورأسي) يسميان <strong>مركبتي المتجه</strong>.
+                        </p>
+                        
+                        <!-- Toggle options for Components (New Feature) -->
+                        <div class="bg-white dark:bg-slate-800 p-3 rounded-lg border border-slate-200 dark:border-slate-700 space-y-2">
+                            <span class="text-xs font-bold block mb-1 text-slate-700 dark:text-slate-300">خيارات عرض المركبات:</span>
+                            <div class="flex items-center gap-4">
+                                <label class="inline-flex items-center gap-1.5 cursor-pointer text-xs font-semibold">
+                                    <input type="checkbox" id="chk-comp-x" onchange="toggleCompX(this.checked)" ${showComponentX ? 'checked' : ''} class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-slate-300">
+                                    <span class="text-emerald-600">المركبة الأفقية ($A_x$)</span>
+                                </label>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <label class="inline-flex items-center gap-1.5 cursor-pointer text-xs font-semibold">
+                                    <input type="checkbox" id="chk-comp-y" onchange="toggleCompY(this.checked)" ${showComponentY ? 'checked' : ''} class="w-4 h-4 rounded text-teal-600 focus:ring-teal-500 border-slate-300">
+                                    <span class="text-teal-600">المركبة الرأسية ($A_y$)</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2 mt-2">
+                            <div class="text-xs flex justify-between">
+                                <span>المركبة السينية:</span>
+                                <span class="font-mono text-emerald-600 font-bold">A_x = A \\cos(\\theta)</span>
+                            </div>
+                            <div class="text-xs flex justify-between">
+                                <span>المركبة الصادية:</span>
+                                <span class="font-mono text-teal-600 font-bold">A_y = A \\sin(\\theta)</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } 
+            else if (activeTab === 'equality') {
+                html = `
+                    <div class="space-y-3 bg-slate-50 dark:bg-slate-900 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
+                        <div class="bg-amber-100 dark:bg-amber-950/40 p-2 rounded-lg border border-amber-200 dark:border-amber-900 text-[11px] text-amber-800 dark:text-amber-300 leading-normal">
+                            🎮 <strong>تحدي التساوي:</strong> يتساوى متجهان إذا كان لهما نفس <strong>المقدار</strong> ونفس <strong>الاتجاه</strong> بغض النظر عن نقطة البداية. حاول ضبط المتجه الأخضر (A) ليتطابق مع المتجه الهدف المتقطع!
+                        </div>
+                        <div id="equality-indicator" class="p-2.5 rounded-lg text-center text-xs font-bold transition-all border">
+                            غير متساويين ❌
+                        </div>
+                    </div>
+                `;
+            } 
+            else if (activeTab === 'negative') {
+                html = `
+                    <div class="space-y-3 bg-slate-50 dark:bg-slate-900 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
+                        <p class="text-xs text-slate-500 leading-relaxed">
+                            <strong>سالب المتجه:</strong> هو متجه له نفس مقدار المتجه الأصلي ولكنه يعاكسه تماماً في الاتجاه.
+                        </p>
+                        <div class="bg-purple-100 dark:bg-purple-950/30 p-2 rounded-lg border border-purple-200 dark:border-purple-900/40 text-[11px] text-purple-800 dark:text-purple-300">
+                            الزاوية بين المتجه وسالبه تساوي دائماً $180^\\circ$ ومجموعهما يساوي صفراً ($A + (-A) = 0$).
+                        </div>
+                    </div>
+                `;
+            } 
+            else if (activeTab === 'scalar') {
+                html = `
+                    <div class="space-y-3 bg-slate-50 dark:bg-slate-900 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
+                        <p class="text-xs text-slate-500 leading-relaxed">
+                            <strong>ضرب متجه في عدد:</strong> يؤدي لضرب المقدار في ذلك العدد. إذا كان العدد سالباً، ينعكس اتجاه المتجه.
+                        </p>
+                        <div class="space-y-1">
+                            <label class="text-xs font-bold flex justify-between">
+                                <span>معامل الضرب القياسي (k):</span>
+                                <span class="text-teal-600 font-mono" id="val-k">${scalarK}</span>
+                            </label>
+                            <input type="range" id="input-k" min="-3" max="3" step="0.1" value="${scalarK}" oninput="changeScalarK(this.value)" class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-teal-600">
+                        </div>
+                        <div class="text-[10px] text-slate-400">
+                            ملاحظة: جرب المعامل بقيمة سالبة لترى تغير الاتجاه!
+                        </div>
+                    </div>
+                `;
+            } 
+            else if (activeTab === 'addition') {
+                html = `
+                    <div class="space-y-3 bg-slate-50 dark:bg-slate-900 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
+                        <p class="text-xs text-slate-500 leading-relaxed">
+                            <strong>محصلة متجهين (الجمع):</strong> هي متجه منفرد يعادل أثر المتجهين معاً. نقوم بسحب ذيل الثاني ليوضع على رأس الأول (طريقة المضلع).
+                        </p>
+                        <div class="flex flex-col gap-1 text-[11px] text-slate-600 dark:text-slate-300">
+                            <div class="flex justify-between font-bold text-rose-600 dark:text-rose-400">
+                                <span>مركبة المحصلة R_x:</span>
+                                <span>R_x = A_x + B_x</span>
+                            </div>
+                            <div class="flex justify-between font-bold text-rose-600 dark:text-rose-400">
+                                <span>مركبة المحصلة R_y:</span>
+                                <span>R_y = A_y + B_y</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+            // Trigger MathJax typeset to render formulas nicely
+            if (typeof MathJax !== 'undefined' && MathJax.typeset) {
+                MathJax.typeset();
+            }
+        }
+
+        // Render controls for realistic mode
+        function renderRealisticPanelControls() {
+            const container = document.getElementById('realistic-controls');
+            let html = '';
+
+            if (realScenario === 'river') {
+                html = `
+                    <div class="space-y-3 bg-slate-50 dark:bg-slate-900 p-4 rounded-xl border border-slate-100 dark:border-slate-800 text-xs">
+                        <p class="leading-relaxed">
+                            يحاول القارب عبور النهر بالسرعة والاتجاه (المتجه الأخضر $A$). بينما يدفع تيار النهر القارب باتجاه الشرق (المتجه الأزرق $B$).
+                        </p>
+                        <div class="space-y-2 border-t border-slate-200 dark:border-slate-800 pt-2 mt-2">
+                            <div class="flex justify-between">
+                                <span class="text-emerald-600 font-bold">🟢 سرعة القارب (الذاتية):</span>
+                                <span class="font-bold" id="real-val-boat">0 وحدة</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-blue-600 font-bold">🔵 سرعة تيار النهر:</span>
+                                <span class="font-bold" id="real-val-river">0 وحدة</span>
+                            </div>
+                            <div class="flex justify-between border-t border-slate-200 dark:border-slate-800 pt-1 text-rose-600 dark:text-rose-400 font-bold">
+                                <span>🔴 السرعة المحصلة الفعلية:</span>
+                                <span id="real-val-result">0 وحدة</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                html = `
+                    <div class="space-y-3 bg-slate-50 dark:bg-slate-900 p-4 rounded-xl border border-slate-100 dark:border-slate-800 text-xs">
+                        <p class="leading-relaxed">
+                            يقوم شخصان بسحب صندوق خشبي كبير بحبلين. الشخص الأول يسحب بالقوة (المتجه الأخضر $F_1$)، والشخص الثاني بالقوة (المتجه الأزرق $F_2$).
+                        </p>
+                        <div class="space-y-2 border-t border-slate-200 dark:border-slate-800 pt-2 mt-2">
+                            <div class="flex justify-between">
+                                <span class="text-emerald-600 font-bold">🟢 قوة الشد الأولى (F1):</span>
+                                <span class="font-bold" id="real-val-boat">0 نيوتن</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-blue-600 font-bold">🔵 قوة الشد الثانية (F2):</span>
+                                <span class="font-bold" id="real-val-river">0 نيوتن</span>
+                            </div>
+                            <div class="flex justify-between border-t border-slate-200 dark:border-slate-800 pt-1 text-rose-600 dark:text-rose-400 font-bold">
+                                <span>🔴 القوة المحصلة:</span>
+                                <span id="real-val-result">0 نيوتن</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+        }
+
+        // Change multiplying factor
+        function changeScalarK(val) {
+            scalarK = parseFloat(val);
+            document.getElementById('val-k').innerText = scalarK.toFixed(1);
+            updateSimulation();
+        }
+
+        // Render current state dynamically on the SVG and status panel
+        function updateSimulation() {
+            // Calculations values
+            const magA = Math.sqrt(vectorA.x * vectorA.x + vectorA.y * vectorA.y);
+            const angA = (Math.atan2(vectorA.y, vectorA.x) * 180 / Math.PI + 360) % 360;
+
+            const magB = Math.sqrt(vectorB.x * vectorB.x + vectorB.y * vectorB.y);
+            const angB = (Math.atan2(vectorB.y, vectorB.x) * 180 / Math.PI + 360) % 360;
+
+            // Update green Vector A values inside the status panels
+            document.getElementById('val-a-mag').innerText = `${magA.toFixed(1)} وحدة`;
+            document.getElementById('val-a-ang').innerText = `${Math.round(angA)}°`;
+            document.getElementById('val-a-ax').innerText = vectorA.x.toFixed(1);
+            document.getElementById('val-a-ay').innerText = vectorA.y.toFixed(1);
+
+            // Hide/Show secondary elements depending on tab/mode selection
+            const labelB = document.getElementById('label-b');
+            const labelR = document.getElementById('label-r');
+            const labelNeg = document.getElementById('label-negative');
+            const vectorNeg = document.getElementById('vector-negative');
+            const vectorTarget = document.getElementById('vector-target');
+            const componentsLayer = document.getElementById('components-layer');
+            const bLegend = document.getElementById('label-vector-b-legend');
+            const rLegend = document.getElementById('label-vector-r-legend');
+            
+            // Set element view properties defaults
+            vectorBLine.classList.add('hidden');
+            vectorBHelper.classList.add('hidden');
+            vectorRLine.classList.add('hidden');
+            vectorNeg.classList.add('hidden');
+            vectorTarget.classList.add('hidden');
+            componentsLayer.classList.add('hidden');
+            handleB.classList.add('hidden');
+            handleBBase.classList.add('hidden');
+
+            labelB.classList.add('hidden');
+            labelR.classList.add('hidden');
+            labelNeg.classList.add('hidden');
+            bLegend.classList.add('hidden');
+            rLegend.classList.add('hidden');
+
+            // Set play instructions panel (only shown in realistic scenarios)
+            const simPlayback = document.getElementById('simulation-playback-card');
+            simPlayback.classList.add('hidden');
+
+            // Draw Vector A on screen
+            const ax_px = originX + (vectorA.x * pixelScale);
+            const ay_px = originY - (vectorA.y * pixelScale);
+            vectorALine.setAttribute('x2', ax_px);
+            vectorALine.setAttribute('y2', ay_px);
+            handleA.setAttribute('cx', ax_px);
+            handleA.setAttribute('cy', ay_px);
+
+            // Update Label text position A
+            const lblA = document.getElementById('label-a');
+            lblA.setAttribute('x', ax_px);
+            lblA.setAttribute('y', ay_px - 15);
+            lblA.textContent = globalMode === 'realistic' ? (realScenario === 'river' ? 'v القارب' : 'F1') : 'A';
+
+            // Draw Dynamic Angle Arc & Label (New Feature)
+            drawAngleArc(angA);
+
+            // Define operations display logic
+            let opTitle = document.getElementById('op-title');
+            let opDetailsContainer = document.getElementById('op-details');
+
+            if (globalMode === 'abstract') {
+                
+                if (activeTab === 'components') {
+                    opTitle.innerText = "مركبتا المتجه";
+                    componentsLayer.classList.remove('hidden');
+
+                    const cx_line = document.getElementById('vector-a-cx');
+                    const cy_line = document.getElementById('vector-a-cy');
+                    const dash_x = document.getElementById('align-dash-x');
+                    const dash_y = document.getElementById('align-dash-y');
+
+                    // 1. Horizontal Component (Ax): Green arrow on X axis
+                    cx_line.setAttribute('x1', originX);
+                    cx_line.setAttribute('y1', originY);
+                    cx_line.setAttribute('x2', ax_px);
+                    cx_line.setAttribute('y2', originY);
+
+                    // 2. Vertical Component (Ay): Darker Green arrow on Y axis
+                    cy_line.setAttribute('x1', originX);
+                    cy_line.setAttribute('y1', originY);
+                    cy_line.setAttribute('x2', originX);
+                    cy_line.setAttribute('y2', ay_px);
+
+                    // 3. Dashed projections to show box alignment
+                    dash_y.setAttribute('x1', ax_px);
+                    dash_y.setAttribute('y1', ay_px);
+                    dash_y.setAttribute('x2', originX);
+                    dash_y.setAttribute('y2', ay_px);
+
+                    dash_x.setAttribute('x1', ax_px);
+                    dash_x.setAttribute('y1', ay_px);
+                    dash_x.setAttribute('x2', ax_px);
+                    dash_x.setAttribute('y2', originY);
+
+                    // Implement Show/Hide checks
+                    if (showComponentX) {
+                        cx_line.classList.remove('hidden');
+                        dash_x.classList.remove('hidden');
+                    } else {
+                        cx_line.classList.add('hidden');
+                        dash_x.classList.add('hidden');
+                    }
+
+                    if (showComponentY) {
+                        cy_line.classList.remove('hidden');
+                        dash_y.classList.remove('hidden');
+                    } else {
+                        cy_line.classList.add('hidden');
+                        dash_y.classList.add('hidden');
+                    }
+
+                    opDetailsContainer.innerHTML = `
+                        <div class="space-y-1 text-xs">
+                            <div class="flex justify-between">
+                                <span>مقدار المتجه |A|:</span>
+                                <span class="font-bold text-emerald-600">${magA.toFixed(1)}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>زاوية الاتجاه (θ):</span>
+                                <span class="font-bold text-emerald-600">${Math.round(angA)}°</span>
+                            </div>
+                            <div class="flex justify-between border-t border-slate-200 dark:border-slate-800 pt-1 mt-1 font-mono text-emerald-700 dark:text-emerald-400">
+                                <span>A_x = ${magA.toFixed(1)} × cos(${Math.round(angA)}°):</span>
+                                <span class="font-bold">${vectorA.x.toFixed(1)}</span>
+                            </div>
+                            <div class="flex justify-between font-mono text-teal-700 dark:text-teal-500">
+                                <span>A_y = ${magA.toFixed(1)} × sin(${Math.round(angA)}°):</span>
+                                <span class="font-bold">${vectorA.y.toFixed(1)}</span>
+                            </div>
+                        </div>
+                    `;
+                } 
+                else if (activeTab === 'equality') {
+                    opTitle.innerText = "مطابقة المتجهات";
+                    vectorTarget.classList.remove('hidden');
+                    vectorBLine.classList.remove('hidden');
+                    handleB.classList.remove('hidden');
+                    handleBBase.classList.remove('hidden');
+
+                    bLegend.classList.remove('hidden');
+
+                    // Base location for B
+                    const bx_base_px = originX + (vectorB.bx * pixelScale);
+                    const by_base_px = originY - (vectorB.by * pixelScale);
+
+                    // Tip location for B
+                    const bx_px = bx_base_px + (vectorB.x * pixelScale);
+                    const by_px = by_base_px - (vectorB.y * pixelScale);
+
+                    vectorBLine.setAttribute('x1', bx_base_px);
+                    vectorBLine.setAttribute('y1', by_base_px);
+                    vectorBLine.setAttribute('x2', bx_px);
+                    vectorBLine.setAttribute('y2', by_px);
+
+                    // Move Handles of B
+                    handleB.setAttribute('cx', bx_px);
+                    handleB.setAttribute('cy', by_px);
+                    handleBBase.setAttribute('cx', bx_base_px);
+                    handleBBase.setAttribute('cy', by_base_px);
+
+                    // Update tooltip positions for B
+                    labelB.classList.remove('hidden');
+                    labelB.setAttribute('x', bx_px);
+                    labelB.setAttribute('y', by_px - 15);
+                    labelB.textContent = 'B';
+
+                    // Update Target (dashed line matching vector B)
+                    // Set Target line from origin to (B.x, B.y)
+                    const target_tx = originX + (vectorB.x * pixelScale);
+                    const target_ty = originY - (vectorB.y * pixelScale);
+                    vectorTarget.setAttribute('x1', originX);
+                    vectorTarget.setAttribute('y1', originY);
+                    vectorTarget.setAttribute('x2', target_tx);
+                    vectorTarget.setAttribute('y2', target_ty);
+
+                    // Target indicator tooltip
+                    const lblTarget = document.getElementById('label-negative');
+                    lblTarget.classList.remove('hidden');
+                    lblTarget.setAttribute('x', target_tx);
+                    lblTarget.setAttribute('y', target_ty - 15);
+                    lblTarget.textContent = 'الهدف المطلوب';
+                    lblTarget.setAttribute('fill', '#64748b');
+
+                    // Equality checks
+                    const diffX = Math.abs(vectorA.x - vectorB.x);
+                    const diffY = Math.abs(vectorA.y - vectorB.y);
+                    const isMatched = (diffX <= 1) && (diffY <= 1); // 1 grid leeway
+
+                    const indicator = document.getElementById('equality-indicator');
+                    if (isMatched) {
+                        indicator.innerText = "تساوي تام! 🎉";
+                        indicator.className = "p-2.5 rounded-lg text-center text-xs font-bold transition-all border border-emerald-500 bg-emerald-100 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 success-pulse";
+                    } else {
+                        indicator.innerText = "غير متساويين ❌";
+                        indicator.className = "p-2.5 rounded-lg text-center text-xs font-bold transition-all border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 text-slate-500";
+                    }
+
+                    opDetailsContainer.innerHTML = `
+                        <div class="space-y-1 text-xs">
+                            <div class="flex justify-between font-bold text-emerald-600">
+                                <span>مقدار المتجه A:</span>
+                                <span>${magA.toFixed(1)}</span>
+                            </div>
+                            <div class="flex justify-between font-bold text-blue-600">
+                                <span>مقدار المتجه المطلوب B:</span>
+                                <span>${magB.toFixed(1)}</span>
+                            </div>
+                            <div class="flex justify-between font-bold text-emerald-600 border-t border-slate-200 dark:border-slate-800 pt-1 mt-1">
+                                <span>اتجاه المتجه A (θ):</span>
+                                <span>${Math.round(angA)}°</span>
+                            </div>
+                            <div class="flex justify-between font-bold text-blue-600">
+                                <span>اتجاه المتجه المطلوب B (θ):</span>
+                                <span>${Math.round(angB)}°</span>
+                            </div>
+                        </div>
+                    `;
+                } 
+                else if (activeTab === 'negative') {
+                    opTitle.innerText = "سالب المتجه";
+                    vectorNeg.classList.remove('hidden');
+
+                    const neg_ax_px = originX - (vectorA.x * pixelScale);
+                    const neg_ay_px = originY + (vectorA.y * pixelScale);
+
+                    vectorNeg.setAttribute('x2', neg_ax_px);
+                    vectorNeg.setAttribute('y2', neg_ay_px);
+
+                    labelNeg.classList.remove('hidden');
+                    labelNeg.setAttribute('x', neg_ax_px);
+                    labelNeg.setAttribute('y', neg_ay_px - 15);
+                    labelNeg.textContent = '-A';
+                    labelNeg.setAttribute('fill', '#7e22ce');
+
+                    opDetailsContainer.innerHTML = `
+                        <div class="space-y-1 text-xs">
+                            <div class="flex justify-between">
+                                <span>مقدار المتجه A:</span>
+                                <span class="font-bold text-emerald-600">${magA.toFixed(1)}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>مقدار المتجه -A:</span>
+                                <span class="font-bold text-purple-600">${magA.toFixed(1)}</span>
+                            </div>
+                            <div class="flex justify-between border-t border-slate-200 dark:border-slate-800 pt-1 mt-1">
+                                <span>اتجاه المتجه A (θ):</span>
+                                <span class="font-bold text-emerald-600">${Math.round(angA)}°</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>اتجاه المتجه -A:</span>
+                                <span class="font-bold text-purple-600">${Math.round((angA + 180) % 360)}°</span>
+                            </div>
+                        </div>
+                    `;
+                } 
+                else if (activeTab === 'scalar') {
+                    opTitle.innerText = "الضرب القياسي";
+                    vectorNeg.classList.remove('hidden'); // We reuse the purple line as the scalar output
+
+                    const neg_ax_px = originX + (vectorA.x * scalarK * pixelScale);
+                    const neg_ay_px = originY - (vectorA.y * scalarK * pixelScale);
+
+                    vectorNeg.setAttribute('x2', neg_ax_px);
+                    vectorNeg.setAttribute('y2', neg_ay_px);
+
+                    labelNeg.classList.remove('hidden');
+                    labelNeg.setAttribute('x', neg_ax_px);
+                    labelNeg.setAttribute('y', neg_ay_px - 15);
+                    labelNeg.textContent = 'k · A';
+                    labelNeg.setAttribute('fill', '#a855f7');
+
+                    const finalMag = Math.abs(scalarK) * magA;
+                    const finalAng = scalarK >= 0 ? angA : (angA + 180) % 360;
+
+                    opDetailsContainer.innerHTML = `
+                        <div class="space-y-1 text-xs">
+                            <div class="flex justify-between">
+                                <span>المقدار الأصلي |A|:</span>
+                                <span class="font-bold">${magA.toFixed(1)}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>المقدار الجديد |k · A|:</span>
+                                <span class="font-bold text-purple-600">${finalMag.toFixed(1)}</span>
+                            </div>
+                            <div class="flex justify-between border-t border-slate-200 dark:border-slate-800 pt-1 mt-1">
+                                <span>الاتجاه الأصلي (θ):</span>
+                                <span class="font-bold">${Math.round(angA)}°</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>الاتجاه الجديد:</span>
+                                <span class="font-bold text-purple-600">${Math.round(finalAng)}°</span>
+                            </div>
+                        </div>
+                    `;
+                } 
+                else if (activeTab === 'addition') {
+                    opTitle.innerText = "المحصلة";
+                    vectorBLine.classList.remove('hidden');
+                    vectorBHelper.classList.remove('hidden');
+                    vectorRLine.classList.remove('hidden');
+                    handleB.classList.remove('hidden');
+
+                    bLegend.classList.remove('hidden');
+                    rLegend.classList.remove('hidden');
+
+                    // Draw B from Origin normally
+                    const bx_px = originX + (vectorB.x * pixelScale);
+                    const by_px = originY - (vectorB.y * pixelScale);
+                    vectorBLine.setAttribute('x2', bx_px);
+                    vectorBLine.setAttribute('y2', by_px);
+                    handleB.setAttribute('cx', bx_px);
+                    handleB.setAttribute('cy', by_px);
+
+                    labelB.classList.remove('hidden');
+                    labelB.setAttribute('x', bx_px);
+                    labelB.setAttribute('y', by_px - 15);
+                    labelB.textContent = 'B';
+
+                    // Draw B tail-to-tip starting at the end of A
+                    vectorBHelper.setAttribute('x1', ax_px);
+                    vectorBHelper.setAttribute('y1', ay_px);
+                    vectorBHelper.setAttribute('x2', ax_px + (vectorB.x * pixelScale));
+                    vectorBHelper.setAttribute('y2', ay_px - (vectorB.y * pixelScale));
+
+                    // Draw Resultant R from Origin to tip of shifted B
+                    const rx_px = ax_px + (vectorB.x * pixelScale);
+                    const ry_px = ay_px - (vectorB.y * pixelScale);
+                    vectorRLine.setAttribute('x2', rx_px);
+                    vectorRLine.setAttribute('y2', ry_px);
+
+                    labelR.classList.remove('hidden');
+                    labelR.setAttribute('x', rx_px);
+                    labelR.setAttribute('y', ry_px - 15);
+                    labelR.textContent = 'R = A + B';
+
+                    // Mathematical sums
+                    const rx_units = vectorA.x + vectorB.x;
+                    const ry_units = vectorA.y + vectorB.y;
+                    const magR = Math.sqrt(rx_units * rx_units + ry_units * ry_units);
+                    const angR = (Math.atan2(ry_units, rx_units) * 180 / Math.PI + 360) % 360;
+
+                    opDetailsContainer.innerHTML = `
+                        <div class="space-y-1 text-xs">
+                            <div class="flex justify-between font-mono text-rose-600 dark:text-rose-400">
+                                <span>R_x = ${vectorA.x.toFixed(1)} + (${vectorB.x.toFixed(1)}):</span>
+                                <span class="font-bold">${rx_units.toFixed(1)}</span>
+                            </div>
+                            <div class="flex justify-between font-mono text-rose-600 dark:text-rose-400">
+                                <span>R_y = ${vectorA.y.toFixed(1)} + (${vectorB.y.toFixed(1)}):</span>
+                                <span class="font-bold">${ry_units.toFixed(1)}</span>
+                            </div>
+                            <div class="flex justify-between border-t border-slate-200 dark:border-slate-800 pt-1 mt-1">
+                                <span>مقدار المحصلة |R|:</span>
+                                <span class="font-bold text-rose-600">${magR.toFixed(1)}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>زاوية الاتجاه (θ_R):</span>
+                                <span class="font-bold text-rose-600">${Math.round(angR)}°</span>
+                            </div>
+                        </div>
+                    `;
+                }
+
+            } else {
+                // Realistic Mode Simulation Renderer
+                simPlayback.classList.remove('hidden');
+                
+                vectorBLine.classList.remove('hidden');
+                vectorBHelper.classList.remove('hidden');
+                vectorRLine.classList.remove('hidden');
+                handleB.classList.remove('hidden');
+
+                bLegend.classList.remove('hidden');
+                rLegend.classList.remove('hidden');
+
+                // Values Display for Real Scenarios
+                opTitle.innerText = realScenario === 'river' ? 'حركة القارب المحصلة' : 'القوى المحصلة المؤثرة';
+
+                // Setup Vector B (River flow or puller 2)
+                const bx_px = originX + (vectorB.x * pixelScale);
+                const by_px = originY - (vectorB.y * pixelScale);
+                vectorBLine.setAttribute('x2', bx_px);
+                vectorBLine.setAttribute('y2', by_px);
+                handleB.setAttribute('cx', bx_px);
+                handleB.setAttribute('cy', by_px);
+
+                labelB.classList.remove('hidden');
+                labelB.setAttribute('x', bx_px);
+                labelB.setAttribute('y', by_px - 15);
+                labelB.textContent = realScenario === 'river' ? 'v النهر' : 'F2';
+
+                // Shift B to end of A to showcase mathematical tip-to-tail logic
+                vectorBHelper.setAttribute('x1', ax_px);
+                vectorBHelper.setAttribute('y1', ay_px);
+                vectorBHelper.setAttribute('x2', ax_px + (vectorB.x * pixelScale));
+                vectorBHelper.setAttribute('y2', ay_px - (vectorB.y * pixelScale));
+
+                // Draw Resultant
+                const rx_px = ax_px + (vectorB.x * pixelScale);
+                const ry_px = ay_px - (vectorB.y * pixelScale);
+                vectorRLine.setAttribute('x2', rx_px);
+                vectorRLine.setAttribute('y2', ry_px);
+
+                labelR.classList.remove('hidden');
+                labelR.setAttribute('x', rx_px);
+                labelR.setAttribute('y', ry_px - 15);
+                labelR.textContent = realScenario === 'river' ? 'v المحصلة' : 'F المحصلة';
+
+                // Real life physical units calculations
+                const rx_units = vectorA.x + vectorB.x;
+                const ry_units = vectorA.y + vectorB.y;
+                const magR = Math.sqrt(rx_units * rx_units + ry_units * ry_units);
+                const angR = (Math.atan2(ry_units, rx_units) * 180 / Math.PI + 360) % 360;
+
+                const unitName = realScenario === 'river' ? 'م/ث' : 'نيوتن';
+
+                document.getElementById('real-val-boat').innerText = `${magA.toFixed(1)} ${unitName}`;
+                document.getElementById('real-val-river').innerText = `${magB.toFixed(1)} ${unitName}`;
+                document.getElementById('real-val-result').innerText = `${magR.toFixed(1)} ${unitName}`;
+
+                opDetailsContainer.innerHTML = `
+                    <div class="space-y-1 text-xs">
+                        <div class="flex justify-between">
+                            <span>المركبة السينية للمحصلة:</span>
+                            <span class="font-mono font-bold">${rx_units.toFixed(1)}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>المركبة الصادية للمحصلة:</span>
+                            <span class="font-mono font-bold">${ry_units.toFixed(1)}</span>
+                        </div>
+                        <div class="flex justify-between text-rose-600 dark:text-rose-400 font-bold border-t border-slate-200 dark:border-slate-800 pt-1 mt-1">
+                            <span>القيمة المحصلة النهائية:</span>
+                            <span>${magR.toFixed(1)} ${unitName}</span>
+                        </div>
+                        <div class="flex justify-between text-rose-600 dark:text-rose-400 font-bold">
+                            <span>زاوية الاتجاه الكلي (θ):</span>
+                            <span>${Math.round(angR)}°</span>
+                        </div>
+                    </div>
+                `;
+
+                // Render or reposition simulated objects
+                const animatedObj = document.getElementById('animated-object');
+                animatedObj.classList.remove('hidden');
+                
+                const boatGraphic = document.getElementById('boat-graphic');
+                const crateGraphic = document.getElementById('crate-graphic');
+
+                if (realScenario === 'river') {
+                    boatGraphic.classList.remove('hidden');
+                    crateGraphic.classList.add('hidden');
+                } else {
+                    crateGraphic.classList.remove('hidden');
+                    boatGraphic.classList.add('hidden');
+                }
+
+                // Animate position during playback or keep anchored to starting position (origin)
+                if (!isAnimating) {
+                    animatedObj.setAttribute('transform', `translate(${originX}, ${originY})`);
+                }
+            }
+
+            // Sync Card B and operations card styles/values
+            const cardB = document.getElementById('card-vector-b');
+            const cardResult = document.getElementById('card-result');
+            
+            // Vector B status labels
+            document.getElementById('val-b-mag').innerText = `${magB.toFixed(1)} وحدة`;
+            document.getElementById('val-b-ang').innerText = `${Math.round(angB)}°`;
+            document.getElementById('val-b-bx').innerText = vectorB.x.toFixed(1);
+            document.getElementById('val-b-by').innerText = vectorB.y.toFixed(1);
+
+            if (globalMode === 'abstract' && (activeTab === 'components' || activeTab === 'negative' || activeTab === 'scalar')) {
+                cardB.classList.add('opacity-40');
+            } else {
+                cardB.classList.remove('opacity-40');
+            }
+
+            // Sync pedagogical Concept review block in sidebar
+            syncConceptBlock();
+        }
+
+        // Educational lesson summaries updating contextually
+        function syncConceptBlock() {
+            const explanationBlock = document.getElementById('concept-explanation');
+            let content = '';
+
+            if (globalMode === 'abstract') {
+                if (activeTab === 'components') {
+                    content = `
+                        <p class="font-semibold text-teal-400">مركبتا المتجه الأفقية والرأسية:</p>
+                        <p>عند إسقاط المتجه على محور السينات نحصل على المركبة الأفقية $A_x = A \\cos(\\theta)$، وعند إسقاطه على الصادات نحصل على المركبة الرأسية $A_y = A \\sin(\\theta)$.</p>
+                        <p class="mt-1 text-slate-400">يمكن إعادة حساب مقدار المتجه الأصلي باستخدام نظرية فيثاغورس: $A = \\sqrt{A_x^2 + A_y^2}$ والاتجاه عن طريق $\\tan(\\theta) = \\frac{A_y}{A_x}$.</p>
+                    `;
+                } 
+                else if (activeTab === 'equality') {
+                    content = `
+                        <p class="font-semibold text-amber-400">شروط تساوي المتجهات:</p>
+                        <p>الشرط الأول هو **تساوي المقدار** (أي لهما نفس الطول)، والشرط الثاني هو **تساوي الاتجاه** (نفس زاوية الميلان تماماً).</p>
+                        <p class="mt-1 text-slate-400">لاحظ كيف يمكنك تحريك المتجه الأزرق من مركزه لتغيير مكانه دون أن تتأثر خصائصه الفيزيائية الأساسية كالمقدار والاتجاه!</p>
+                    `;
+                } 
+                else if (activeTab === 'negative') {
+                    content = `
+                        <p class="font-semibold text-purple-400">معكوس المتجه:</p>
+                        <p>هو المتجه الذي إذا جُمع مع المتجه الأصلي تكون المحصلة صفراً ($A + (-A) = 0$).</p>
+                        <p class="mt-1 text-slate-400">عملية طرح المتجهات ($A - B$) في الفيزياء هي في الواقع عملية جمع المتجه $A$ مع سالب المتجه $B$ ($A + (-B)$).</p>
+                    `;
+                } 
+                else if (activeTab === 'scalar') {
+                    content = `
+                        <p class="font-semibold text-teal-400">الضرب القياسي لمتجه:</p>
+                        <p>عند ضرب المتجه في كمية قياسية موجبة يتضاعف طوله بمقدار المعامل، وعند الضرب في عدد سالب ينعكس اتجاهه تماماً بزاوية $180^\\circ$.</p>
+                        <p class="mt-1 text-slate-400">مثال فيزيائي: القوة تساوي الكتلة ضرب التسارع ($F = m \\cdot a$)، القوة والسرعة يتأثران بالضرب القياسي.</p>
+                    `;
+                } 
+                else if (activeTab === 'addition') {
+                    content = `
+                        <p class="font-semibold text-rose-400">المحصلة بطريقة التحليل الجبري:</p>
+                        <p>لجمع المتجهات هندسياً نقوم بتركيب ذيل الثاني على رأس الأول، وتكون المحصلة هي السهم الواصل من ذيل المتجه الأول إلى رأس المتجه الأخير.</p>
+                        <p class="mt-1 text-slate-400">رياضياً يتم جمع المركبات المتشابهة لتسهيل الحساب: $R_x = A_x + B_x$ و $R_y = A_y + B_y$.</p>
+                    `;
+                }
+            } else {
+                if (realScenario === 'river') {
+                    content = `
+                        <p class="font-semibold text-cyan-400">تطبيق: حركة القارب في النهر</p>
+                        <p>عند محاولة عبور القارب للنهر عمودياً، فإن القارب يكتسب سرعتين متعامدتين: سرعته الذاتية (للأعلى)، وسرعة جرف الماء له (لليمين).</p>
+                        <p class="mt-1 text-slate-400">السرعة الفعلية التي يتحرك بها القارب ويرى بها من الشاطئ هي السرعة المحصلة (المتجه الأحمر)، وهو ما يعكس التطبيق الواقعي لجمع المتجهات المتعامدة.</p>
+                    `;
+                } else {
+                    content = `
+                        <p class="font-semibold text-orange-400">تطبيق: جر صندوق خشبي بالقوى</p>
+                        <p>عندما يسحب شخصان الصندوق بزوايا مختلفة، فإن تأثير القوة المحصلة يحدد الاتجاه النهائي والسرعة التي سيتحرك بها الصندوق.</p>
+                        <p class="mt-1 text-slate-400">إذا تساوت القوتان في المقدار واختلفت الزاويتان بالتناظر، سيتحرك الصندوق في خط مستقيم منصف للزاوية بين القوتين.</p>
+                    `;
+                }
+            }
+
+            explanationBlock.innerHTML = content;
+            if (typeof MathJax !== 'undefined' && MathJax.typeset) {
+                MathJax.typeset();
+            }
+        }
+
+        // Draw dynamic Angle Arc (New Feature)
+        function drawAngleArc(angleDeg) {
+            const arcElement = document.getElementById('angle-arc');
+            const textElement = document.getElementById('angle-text');
+
+            // If angle is zero, hide arc
+            if (Math.round(angleDeg) === 0) {
+                arcElement.setAttribute('d', '');
+                textElement.textContent = '';
+                return;
+            }
+
+            const r = 35; // Radius of the arc in pixels
+            const startAngleRad = 0; // Starts from Positive X axis (0 radians)
+            const endAngleRad = -angleDeg * Math.PI / 180; // Negative because SVG Y axis is flipped down
+
+            const startX = originX + r * Math.cos(startAngleRad);
+            const startY = originY + r * Math.sin(startAngleRad);
+            const endX = originX + r * Math.cos(endAngleRad);
+            const endY = originY + r * Math.sin(endAngleRad);
+
+            // Large arc flag is 1 if the angle is greater than 180 degrees
+            const largeArcFlag = angleDeg > 180 ? 1 : 0;
+            // Sweep flag determines direction of drawing
+            const sweepFlag = 0; 
+
+            // Construct SVG path description
+            const d = `M ${originX} ${originY} L ${startX} ${startY} A ${r} ${r} 0 ${largeArcFlag} ${sweepFlag} ${endX} ${endY} Z`;
+            arcElement.setAttribute('d', d);
+
+            // Put Angle text in the middle of the sector slice
+            const midAngleRad = endAngleRad / 2;
+            const textR = r + 15; // Put label slightly outside the arc radius
+            const textX = originX + textR * Math.cos(midAngleRad);
+            const textY = originY + textR * Math.sin(midAngleRad);
+
+            textElement.setAttribute('x', textX);
+            textElement.setAttribute('y', textY);
+            textElement.textContent = `${Math.round(angleDeg)}°`;
+        }
+
+        // Realistic Simulation Animator using browser animation frame
+        function startRealisticAnimation() {
+            if (isAnimating) return;
+            isAnimating = true;
+            animProgress = 0;
+
+            const btnPlay = document.getElementById('btn-play-sim');
+            btnPlay.innerText = "⏸️ جاري تشغيل المحاكاة";
+            btnPlay.disabled = true;
+
+            const rx_units = vectorA.x + vectorB.x;
+            const ry_units = vectorA.y + vectorB.y;
+
+            function animate() {
+                if (!isAnimating) return;
+                
+                animProgress += 0.005; // speed rate of animation
+                if (animProgress > 1.0) {
+                    animProgress = 1.0;
+                    isAnimating = false;
+                    btnPlay.innerText = "▶️ تشغيل المحاكاة";
+                    btnPlay.disabled = false;
+                }
+
+                // Calculate current coordinates along resultant path
+                const currentX = originX + (rx_units * animProgress * pixelScale);
+                const currentY = originY - (ry_units * animProgress * pixelScale);
+
+                const animatedObj = document.getElementById('animated-object');
+                animatedObj.setAttribute('transform', `translate(${currentX}, ${currentY})`);
+
+                if (isAnimating) {
+                    animFrameId = requestAnimationFrame(animate);
+                }
+            }
+
+            animFrameId = requestAnimationFrame(animate);
+        }
+
+        function resetRealisticSimulation() {
+            isAnimating = false;
+            if (animFrameId) cancelAnimationFrame(animFrameId);
+            animProgress = 0;
+
+            const btnPlay = document.getElementById('btn-play-sim');
+            btnPlay.innerText = "▶️ تشغيل المحاكاة";
+            btnPlay.disabled = false;
+
+            const animatedObj = document.getElementById('animated-object');
+            animatedObj.setAttribute('transform', `translate(${originX}, ${originY})`);
+        }
+    </script>
+</body>
+</html>
